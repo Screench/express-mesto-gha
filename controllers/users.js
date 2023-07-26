@@ -5,7 +5,7 @@ const { INCORRECT_DATA_ERROR, DOCUMENT_NOT_FOUND_ERROR, UNKNOWN_ERROR } = requir
 
 const getUsers = (req, res) => {
   User.find({})
-    .populate('name about avatar')
+    .populate(['name', 'about', 'avatar'])
     .then((users) => res.send(users))
     .catch(err => {
       return res.status(UNKNOWN_ERROR).send({
