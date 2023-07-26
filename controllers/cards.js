@@ -1,119 +1,100 @@
-//Контроллер карточки
+// Контроллер карточки
 const Card = require('../models/card');
 
 const { INCORRECT_DATA_ERROR, DOCUMENT_NOT_FOUND_ERROR, UNKNOWN_ERROR } = require('../errors/errors');
 
-const getCards = (req, res) => {
-  Card.find({})
-  .populate('owner')
-  .then((cards) => res.send(cards))
-  .catch(err => {
-    res.status(UNKNOWN_ERROR).send({
-      message: 'Неизвестная ошибка', err: err.message
-    });
-  })
+const getCards = async (req, res) => {
+  try {
+    const cards = await Card.find({});
+    res.send(cards);
+  } catch (err) {
+    res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', error: err.message });
+  }
 };
 
-const createCard = (req, res) => {
+const createCard = async (req, res) => {
   const { _id } = req.user;
   const { name, link } = req.body;
-  Card.create({ name, link, owner: _id})
-  .then((card) => res.send(card))
-  .catch(err => {
-    if (!name || !link || err) {
-      res.status(INCORRECT_DATA_ERROR).send({
-        message: 'Переданы некорректные данные'
-      });
-      return;
-    } else {
-      res.status(UNKNOWN_ERROR).send({
-        message: 'Неизвестная ошибка', err: err.message
-       });
-    }
-  });
-}
 
-const setLike = (req, res) => {
-  const { _id } = req.user;
-  const {cardId } = req.params;
-  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id}}, { new: true})
-  .then(card => {
-    if (!card) {
-      res.status(DOCUMENT_NOT_FOUND_ERROR).send({
-        message: 'Не найдено'
-      });
-      return;
-    }
-    res.send(card)
-  })
-  .catch(err => {
-    if (!Card[cardId]) {
-      res.status(INCORRECT_DATA_ERROR).send({
-        message: 'Переданы некорректные данные'
-      });
-      return;
-    } else {
-      res.status(UNKNOWN_ERROR).send({
-        message: 'Неизвестная ошибка', err: err.message
-      });
-    }
-  })
+  if (!name || !link) {
+    res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
+    return;
+  }
+
+  try {
+    const card = await Card.create({ name, link, owner: _id });
+    res.send(card);
+  } catch (err) {
+    res.status(UNKNOWN_ERROR).send({
+      message: 'Неизвестная ошибка',
+      error: err.message,
+    });
+  }
 };
 
-const removeLike = (req, res) => {
+const setLike = async (req, res) => {
   const { _id } = req.user;
   const { cardId } = req.params;
-  Card.findByIdAndUpdate(cardId, {$pull: { likes: _id}}, {new: true})
-  .then(card => {
+
+  try {
+    const card = await Card.findByIdAndUpdate(
+      cardId,
+      { $addToSet: { likes: _id } },
+      { new: true }
+    );
     if (!card) {
       res.status(DOCUMENT_NOT_FOUND_ERROR).send({
         message: 'Не найдено'
       });
       return;
     }
-    res.send(card)
-  })
-  .catch(err => {
-    if (!Card[_id]) {
-      res.status(INCORRECT_DATA_ERROR).send({
-        message: 'Переданы некорректные данные'
-      });
-      return;
-    } else {
-      res.status(UNKNOWN_ERROR).send({
-        message: 'Неизвестная ошибка'
-      });
-    }
-  })
+    res.send(card);
+  } catch (err) {
+    res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', error: err.message });
+  }
 };
 
-const deleteCardById = (req, res) => {
+const removeLike = async (req, res) => {
+  const { _id } = req.user;
   const { cardId } = req.params;
-  Card.findByIdAndRemove(cardId)
-  .then((card) => {
+
+  try {
+    const card = await Card.findByIdAndUpdate(
+      cardId,
+      { $pull: { likes: _id } },
+      { new: true }
+    );
     if (!card) {
-      res.status(DOCUMENT_NOT_FOUND_ERROR).send({
-        message: 'Не найдено'
-      });
+      res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: 'Не найдено' });
       return;
     }
-    res.send({
-      message: 'Карточка успешно удалена'
-    })
-  })
-  .catch(() => {
-    if (!Card[cardId]) {
-      res.status(INCORRECT_DATA_ERROR).send({
-        message: 'Переданы некорректные данные'
-      });
+    res.send(card);
+  } catch (err) {
+    res.status(UNKNOWN_ERROR).send({
+      message: 'Неизвестная ошибка', error: err.message
+    });
+  }
+};
+
+const deleteCardById = async (req, res) => {
+  const { cardId } = req.params;
+
+  try {
+    const card = await Card.findByIdAndRemove(cardId);
+    if (!card) {
+      res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: 'Не найдено' });
+      return;
     }
-  })
+    res.send({ message: 'Карточка успешно удалена' });
+  } catch (err) {
+    res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
+  }
 };
 
 module.exports = {
-getCards,
-createCard,
-setLike,
-removeLike,
-deleteCardById
+  getCards,
+  createCard,
+  setLike,
+  removeLike,
+  deleteCardById,
 };
