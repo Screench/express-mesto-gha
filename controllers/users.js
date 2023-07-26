@@ -37,7 +37,7 @@ const createUser = async (req, res) => {
     const user = await User.create({ name, about, avatar });
     res.send(user);
   } catch (err) {
-    res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message });
+    res.status(INCORRECT_DATA_ERROR).send({ message: 'Неизвестная ошибка', err: err.message });
   }
 };
 
