@@ -60,9 +60,6 @@ const updateProfile = (req, res) => {
       if (!name || !about || err) {
         res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
         return;
-      } else if (!User[_id]) {
-        res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: 'Такого пользователя нет' });
-        return;
       }
       else {
         res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message })
@@ -76,7 +73,10 @@ const updateAvatar = (req, res) => {
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then((user) => res.send(user))
     .catch(err => {
-      if (!avatar) {
+      if (!User[_id]) {
+        res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: 'Такого пользователя нет' });
+        return;
+      } else if (!avatar) {
         res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
         return;
       } else {
