@@ -41,21 +41,25 @@ const createUser = async (req, res) => {
   }
 };
 
-const updateProfile = async (req, res) => {
+const updateProfileUser = async (req, res) => {
   const { name, about } = req.body;
   const { _id } = req.user;
-
   try {
-    const user = await User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true });
+    const user = await User.findByIdAndUpdate(
+      _id,
+      { name, about },
+      { new: true, runValidators: true }
+    );
     res.send(user);
   } catch (err) {
-    if (err.name === 'ValidationError') {
+    if (err.name === "ValidationError") {
       res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
     } else {
       res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message });
     }
   }
 };
+
 
 const updateAvatar = async (req, res) => {
   const { avatar } = req.body;
