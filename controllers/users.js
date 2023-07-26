@@ -60,7 +60,11 @@ const updateProfile = (req, res) => {
       if (!name || !about || err) {
         res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
         return;
-      } else {
+      } else if (!User[_id]) {
+        res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: 'Такого пользователя нет' });
+        return;
+      }
+      else {
         res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message })
       }
     })
