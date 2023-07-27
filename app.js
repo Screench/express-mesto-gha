@@ -1,9 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const DB_URL = 'mongodb://localhost.localdomain/mestodb';
-const { PORT = 3000 } = process.env;
+const DB_URL = 'mongodb://localhost.localdomain:27017/mestodb';
+const { PORT = 3000 } = process.env
 const { DOCUMENT_NOT_FOUND_ERROR } = require('./errors/errors');
-const router = require('./routes/index');
+const router = require('./routes');
 const app = express();
 app.use(express.json());
 
@@ -17,12 +17,10 @@ app.use((req, res, next) => {
 
 mongoose.connect(DB_URL, { useUnifiedTopology: true, useNewUrlParser: true });
 app.use(router);
-app.use('/', (req, res) => {
-  res.status(DOCUMENT_NOT_FOUND_ERROR).send({
-    message: 'Не найдено'
-  });
+app.use('/', (reg, res) => {
+  res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: 'Пока тут ничего нет' });
 });
 
 app.listen(PORT, () => {
-  console.log(`Прослушивание порта ${PORT}`);
+  console.log(`Прослушивание порта ${PORT}`)
 });
