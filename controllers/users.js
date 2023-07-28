@@ -70,20 +70,31 @@ const updateProfile = (req, res) => {
 };
 
 
-const updateAvatar = (req, res) => {
+function updateAvatar(req, res) {
   const { avatar } = req.body;
-  const { _id } = req.user;
-  User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(400).send({ message: `Переданные данные некорректны` });
-        return;
-      } else {
-        res.status(500).send({ message: `Произошла неизвестная ошибка`, err: err.message })
-      }
+  const { _id: userId } = req.user;
+
+  User.findByIdAndUpdate(userId, { avatar, }, {
+    new: true, runValidators: true, upsert: false,
+  },
+  )
+    .then((user) => {
+      if (user) return res.send({ data: user });
+
+      return res.status(404).send({ message: 'Пользователь по указанному id не найден' });
     })
-};
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
+      }
+
+      if (err.name === 'CastError') {
+        return res.status(404).send({ message: 'Пользователь с указанным id не найден' });
+      }
+
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
+    });
+}
 
 module.exports = {
   createUser,
