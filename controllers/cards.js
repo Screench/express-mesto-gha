@@ -5,7 +5,7 @@ const { INCORRECT_DATA_ERROR, DOCUMENT_NOT_FOUND_ERROR, UNKNOWN_ERROR } = requir
 
 const getCards = (req, res) => {
   Card.find({})
-  .populate('owner')
+
   .then((cards) => res.send(cards))
   .catch(err => {
     res.status(UNKNOWN_ERROR).send({
@@ -37,8 +37,8 @@ const setLike = (req, res) => {
   const { _id } = req.user;
   const {cardId } = req.params;
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id}}, { new: true})
-  .then(card => {
-    if (!card) {
+  .then(cardData => {
+    if (!cardData) {
       res.status(DOCUMENT_NOT_FOUND_ERROR).send({
         message: 'Не найдено'
       });
@@ -64,8 +64,8 @@ const removeLike = (req, res) => {
   const { _id } = req.user;
   const { cardId } = req.params;
   Card.findByIdAndUpdate(cardId, {$pull: { likes: _id}}, {new: true})
-  .then(card => {
-    if (!card) {
+  .then(cardData => {
+    if (!cardData) {
       res.status(DOCUMENT_NOT_FOUND_ERROR).send({
         message: 'Не найдено'
       });
@@ -91,7 +91,7 @@ const deleteCardById = (req, res) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
   .then((cardData) => {
-    if (!card) {
+    if (!cardData) {
       res.status(DOCUMENT_NOT_FOUND_ERROR).send({
         message: 'Не найдено'
       });
