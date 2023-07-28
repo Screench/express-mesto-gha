@@ -74,7 +74,7 @@
 //   const { avatar } = req.body;
 //   const { _id } = req.user;
 //   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-//     .then((user) => res.send({avatar: user.avatar}))
+//     .then((user) => res.send.json({avatar: user.avatar}))
 //     .catch((err) => {
 //       if (err.name === "ValidationError") {
 //         res.status(400).send({ message: `Переданные данные некорректны` });
@@ -143,7 +143,7 @@ const updateProfile = (req, res) => {
   const { name, about } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
-    .then((user) => res.send(user))
+  .then((user) => res.json({ name: user.avatar, about: user.about }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(ERROR_VALIDATION).send({ message: `Переданные данные некорректны` });
@@ -158,7 +158,7 @@ const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-    .then((user) => res.send(user))
+    .then((user) => res.json({ avatar: user.avatar }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(ERROR_VALIDATION).send({ message: `Переданные данные некорректны` });
