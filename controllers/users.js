@@ -58,13 +58,21 @@ const updateProfile = (req, res) => {
   const { name, about } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
-    .then((user) => res.send(user))
+    .then((userData) => {
+      const response = {
+        name: userData.name,
+        about: userData.about
+      };
+      res.json(response);
+    })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(INCORRECT_DATA_ERROR).send({ message: `Переданы некорректные данные` });
+        res.status(INCORRECT_DATA_ERROR).send({
+          message: 'Переданы некорректные данные' });
         return;
       } else {
-        res.status(UNKNOWN_ERROR).send({ message: `Неизвестная ошибка`, err: err.message })
+        res.status(UNKNOWN_ERROR).send({
+          message: 'Неизвестная ошибка', err: err.message })
       }
     })
 };
@@ -74,7 +82,12 @@ const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-    .then(userData => res.send(userData))
+    .then((userData) => {
+      const response = {
+        avatar: userData.avatar
+      };
+      res.json(response);
+    })
     .catch((err) => {
       if (err === 'ValidationError') {
         res.status(INCORRECT_DATA_ERROR).send({
