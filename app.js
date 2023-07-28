@@ -1,26 +1,30 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const DB_URL = 'mongodb://localhost.localdomain:27017/mestodb';
-const { PORT = 3000 } = process.env
-const { DOCUMENT_NOT_FOUND_ERROR } = require('./errors/errors');
 const router = require('./routes');
+const { DOCUMENT_NOT_FOUND_ERROR } = require('./errors/errors');
+
+const { PORT = 3000 } = process.env
+
 const app = express();
 app.use(express.json());
 
-// Авторизация
+
+/**временное решение авторизации */
+
 app.use((req, res, next) => {
   req.user = {
-    _id: '64bebcd29d7618328a28fa38'
+    _id: '648b5b06e0e871c705f93215' // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
+
   next();
 });
 
-mongoose.connect(DB_URL, { useUnifiedTopology: true, useNewUrlParser: true });
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 app.use(router);
 app.use('/', (reg, res) => {
-  res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: 'Пока тут ничего нет' });
+  res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: 'Что-то пошло не так...'});
 });
 
 app.listen(PORT, () => {
-  console.log(`Прослушивание порта ${PORT}`)
+  console.log(`Слушаю порт ${PORT}`)
 });
