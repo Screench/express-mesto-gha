@@ -15,7 +15,7 @@ app.use((req, res, next) => {
   next();
 });
 
-mongoose.connect(DB_URL, { useUnifiedTopology: true, useNewUrlParser: true });
+mongoose.connect(DB_URL);
 app.use(router);
 app.use('/', (reg, res) => {
   res.status(DOCUMENT_NOT_FOUND_ERROR).send({ message: 'Пока тут ничего нет' });
