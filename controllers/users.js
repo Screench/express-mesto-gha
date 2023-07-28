@@ -1,5 +1,6 @@
 //Контроллер пользователя
 const User = require('../models/user');
+const { ValidationError, CastError } = require('mongoose').Error;
 
 const { INCORRECT_DATA_ERROR, DOCUMENT_NOT_FOUND_ERROR, UNKNOWN_ERROR } = require('../errors/errors');
 
@@ -19,7 +20,7 @@ const getUserById = (req, res) => {
   .orFail(() => new Error('No such user'))
     .then(userData => res.send(userData))
     .catch(err => {
-      if (err.name === 'CastError') {
+      if (err instanceof CastError) {
         res.status(INCORRECT_DATA_ERROR).send({
           message: 'Переданы некорректные данные'
         });
@@ -43,7 +44,7 @@ const createUser = (req, res) => {
       res.send(userData)
     })
     .catch(err => {
-      if (err.name === "ValidationError") {
+      if (err instanceof ValidationError)  {
         res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
         return;
       } else {
@@ -59,7 +60,7 @@ const updateProfile = (req, res) => {
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
     .then(userData => res.send(userData))
     .catch((err) => {
-      if (err.name === ValidationError) {
+      if (err instanceof ValidationError) {
         res.status(INCORRECT_DATA_ERROR).send({
           message: 'Переданы некорректные данные'
         });
@@ -70,7 +71,7 @@ const updateProfile = (req, res) => {
         });
       }
     });
-};
+  }
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
@@ -78,7 +79,7 @@ const updateAvatar = (req, res) => {
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then(userData => res.send(userData))
     .catch((err) => {
-      if (err.name === ValidationError) {
+      if (err instanceof ValidationError)  {
         res.status(INCORRECT_DATA_ERROR).send({
           message: 'Переданы некорректные данные'
         });
