@@ -56,7 +56,7 @@ const createUser = (req, res) => {
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
-  const { _id } = req.user;
+  const { _id } = req._id;
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
     .then((userData) => res.send(userData))
     .catch((err) => {
@@ -72,7 +72,7 @@ const updateProfile = (req, res) => {
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  const { _id } = req.user;
+  const { _id } = req._id;
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then((user) => res.send({avatar: user.avatar}))
     .catch((err) => {
