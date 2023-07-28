@@ -61,10 +61,10 @@ const updateProfile = (req, res) => {
     .then((userData) => res.send(userData))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(INCORRECT_DATA_ERROR).send({ message: `Переданы некорректные данные` });
+        res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
         return;
       } else {
-        res.status(UNKNOWN_ERROR).send({ message: `Неизвестная ошибка`, err: err.message })
+        res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message })
       }
     })
 };
@@ -74,24 +74,15 @@ const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-    .then((userData) => {
-      const response = {
-        avatar: userData.avatar
-      };
-      res.json(response);
-    })
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err === 'ValidationError') {
-        res.status(INCORRECT_DATA_ERROR).send({
-          message: 'Переданы некорректные данные'
-        });
+      if (err.name === "ValidationError") {
+        res.status(400).send({ message: `Переданные данные некорректны` });
+        return;
       } else {
-        res.status(UNKNOWN_ERROR).send({
-          message: 'Неизвестная ошибка',
-          err: err.message
-        });
+        res.status(500).send({ message: `Произошла неизвестная ошибка`, err: err.message })
       }
-    });
+    })
 };
 
 module.exports = {
