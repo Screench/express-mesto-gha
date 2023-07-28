@@ -17,7 +17,7 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-  .orFail(() => new Error('No such user'))
+    .orFail(() => new Error('No such user'))
     .then(userData => res.send(userData))
     .catch(err => {
       if (err.name === 'CastError') {
@@ -44,7 +44,7 @@ const createUser = (req, res) => {
       res.send(userData)
     })
     .catch(err => {
-      if (err.name === 'ValidationError')  {
+      if (err.name === 'ValidationError') {
         res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
         return;
       } else {
@@ -64,6 +64,7 @@ const updateProfile = (req, res) => {
         res.status(INCORRECT_DATA_ERROR).send({
           message: 'Переданы некорректные данные'
         });
+        return;
       } else {
         res.status(UNKNOWN_ERROR).send({
           message: 'Неизвестная ошибка',
@@ -71,7 +72,7 @@ const updateProfile = (req, res) => {
         });
       }
     });
-  }
+}
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
@@ -79,7 +80,7 @@ const updateAvatar = (req, res) => {
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then(userData => res.send(userData))
     .catch((err) => {
-      if (err === 'ValidationError')  {
+      if (err === 'ValidationError') {
         res.status(INCORRECT_DATA_ERROR).send({
           message: 'Переданы некорректные данные'
         });
