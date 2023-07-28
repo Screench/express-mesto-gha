@@ -18,7 +18,7 @@ const createCard = (req, res) => {
   const { _id } = req.user;
   const { name, link } = req.body;
   Card.create({ name, link, owner: _id})
-  .then((card) => res.send(card))
+  .then((cardData) => res.send(cardData))
   .catch(err => {
     if (!name || !link || err) {
       res.status(INCORRECT_DATA_ERROR).send({
@@ -44,7 +44,7 @@ const setLike = (req, res) => {
       });
       return;
     }
-    res.send(card)
+    res.send(cardData)
   })
   .catch(err => {
     if (!Card[cardId]) {
@@ -71,7 +71,7 @@ const removeLike = (req, res) => {
       });
       return;
     }
-    res.send(card)
+    res.send(cardData)
   })
   .catch(err => {
     if (!Card[_id]) {
@@ -90,7 +90,7 @@ const removeLike = (req, res) => {
 const deleteCardById = (req, res) => {
   const { cardId } = req.params;
   Card.findByIdAndRemove(cardId)
-  .then((card) => {
+  .then((cardData) => {
     if (!card) {
       res.status(DOCUMENT_NOT_FOUND_ERROR).send({
         message: 'Не найдено'
