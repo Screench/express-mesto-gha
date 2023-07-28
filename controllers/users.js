@@ -16,7 +16,7 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail('No such user')
+  .orFail(() => new Error('No such user'))
     .then(userData => res.send(userData))
     .catch(err => {
       if (err.name === 'CastError') {
