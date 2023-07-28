@@ -58,21 +58,27 @@ const updateProfile = (req, res) => {
   const { name, about } = req.body;
   const { _id } = req.user;
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
-    .then((userData) => res.send(userData))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(INCORRECT_DATA_ERROR).send({
-          message: 'Переданы некорректные данные'
-        });
-        return;
-      } else {
-        res.status(UNKNOWN_ERROR).send({
-          message: 'Неизвестная ошибка',
-          err: err.message
+    .then((userData) => {
+      if (!userData) {
+        return res.status(DOCUMENT_NOT_FOUND_ERROR).json({
+          message: 'Нет такого пользователя'
         });
       }
+      return res.json(userData);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(INCORRECT_DATA_ERROR).json({
+          message: 'Переданы некорректные данные'
+        });
+      }
+      return res.status(UNKNOWN_ERROR).json({
+        message: 'Неизвестная ошибка',
+        err: err.message
+      });
     });
-}
+};
+
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
