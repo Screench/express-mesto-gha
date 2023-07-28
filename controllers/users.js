@@ -154,20 +154,51 @@ const updateProfile = (req, res) => {
     })
 };
 
+// const updateAvatar = (req, res) => {
+//   const { avatar } = req.body;
+//   const { _id } = req.user;
+//   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
+//     .then((user) => res.json({ avatar: user.avatar }))
+//     .catch((err) => {
+//       if (err.name === "ValidationError") {
+//         res.status(ERROR_VALIDATION).send({ message: `Переданные данные некорректны` });
+//         return;
+//       } else {
+//         res.status(ERROR_DEFAULT).send({ message: `Произошла неизвестная ошибка`, err: err.message })
+//       }
+//     })
+// }
+
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const { _id } = req.user;
-  User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
-    .then((user) => res.json({ avatar: user.avatar }))
+
+  if (!avatar) {
+    res.status(ERROR_VALIDATION).send({ message: "Avatar is required" });
+    return;
+  }
+
+  User.findByIdAndUpdate(
+    _id,
+    { avatar },
+    { new: true, runValidators: true }
+  )
+    .then((user) => {
+      if (!user) {
+        res.status(ERROR_DEFAULT).send({ message: "User not found" });
+        return;
+      }
+      res.json({ avatar: user.avatar });
+    })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(ERROR_VALIDATION).send({ message: `Переданные данные некорректны` });
+        res.status(ERROR_VALIDATION).send({ message: "Переданные данные некорректны" });
         return;
       } else {
-        res.status(ERROR_DEFAULT).send({ message: `Произошла неизвестная ошибка`, err: err.message })
+        res.status(ERROR_DEFAULT).send({ message: "Произошла неизвестная ошибка", err: err.message });
       }
-    })
-}
+    });
+};
 
 module.exports = {
   createUser,
