@@ -7,7 +7,7 @@ const getCards = (req, res) => {
   Card.find({})
 
   .then((cards) => res.send(cards))
-  .catch(err => {
+  .catch((err) => {
     res.status(UNKNOWN_ERROR).send({
       message: 'Неизвестная ошибка', err: err.message
     });
@@ -19,7 +19,7 @@ const createCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: _id})
   .then((cardData) => res.send(cardData))
-  .catch(err => {
+  .catch((err) => {
     if (!name || !link || err) {
       res.status(INCORRECT_DATA_ERROR).send({
         message: 'Переданы некорректные данные'
@@ -37,7 +37,7 @@ const setLike = (req, res) => {
   const { _id } = req.userId;
   const {cardId } = req.params;
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id}}, { new: true})
-  .then(cardData => {
+  .then((cardData) => {
     if (!cardData) {
       res.status(DOCUMENT_NOT_FOUND_ERROR).send({
         message: 'Не найдено'
@@ -46,7 +46,7 @@ const setLike = (req, res) => {
     }
     res.send(cardData)
   })
-  .catch(err => {
+  .catch((err) => {
     if (!Card[cardId]) {
       res.status(INCORRECT_DATA_ERROR).send({
         message: 'Переданы некорректные данные'
@@ -64,7 +64,7 @@ const removeLike = (req, res) => {
   const { _id } = req.userId;
   const { cardId } = req.params;
   Card.findByIdAndUpdate(cardId, {$pull: { likes: _id}}, {new: true})
-  .then(cardData => {
+  .then((cardData) => {
     if (!cardData) {
       res.status(DOCUMENT_NOT_FOUND_ERROR).send({
         message: 'Не найдено'
@@ -73,7 +73,7 @@ const removeLike = (req, res) => {
     }
     res.send(cardData)
   })
-  .catch(err => {
+  .catch((err) => {
     if (!Card[_id]) {
       res.status(INCORRECT_DATA_ERROR).send({
         message: 'Переданы некорректные данные'
