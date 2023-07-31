@@ -18,9 +18,9 @@ const createCard = (req, res) => {
   const { _id } = req.userId;
   const { name, link } = req.body;
   Card.create({ name, link, owner: _id})
-  .then((cardData) => res.send(cardData))
+  .then((cardData) => res.status(201).send(cardData))
   .catch((err) => {
-    if (!name || !link || err) {
+    if (!name || !link || err.name === 'ValidationError')  {
       res.status(INCORRECT_DATA_ERROR).send({
         message: 'Переданы некорректные данные'
       });
@@ -47,12 +47,18 @@ const setLike = (req, res) => {
     res.send(cardData)
   })
   .catch((err) => {
-    if (!Card[cardId]) {
+    if (err.name === 'CastError') {
       res.status(INCORRECT_DATA_ERROR).send({
         message: 'Переданы некорректные данные'
       });
       return;
-    } else {
+    } else if (err.name === 'NotFound'){
+      res.status(DOCUMENT_NOT_FOUND_ERROR).send({
+        message: 'Не найдено'
+      });
+      return;
+    }
+    else {
       res.status(UNKNOWN_ERROR).send({
         message: 'Неизвестная ошибка', err: err.message
       });
@@ -74,18 +80,25 @@ const removeLike = (req, res) => {
     res.send(cardData)
   })
   .catch((err) => {
-    if (!Card[_id]) {
+    if (err.name === 'CastError') {
       res.status(INCORRECT_DATA_ERROR).send({
         message: 'Переданы некорректные данные'
       });
       return;
-    } else {
+    } else if (err.name === 'NotFound'){
+      res.status(DOCUMENT_NOT_FOUND_ERROR).send({
+        message: 'Не найдено'
+      });
+      return;
+    }
+    else {
       res.status(UNKNOWN_ERROR).send({
-        message: 'Неизвестная ошибка'
+        message: 'Неизвестная ошибка', err: err.message
       });
     }
   })
 };
+
 
 const deleteCardById = (req, res) => {
   const { cardId } = req.params;
@@ -101,14 +114,26 @@ const deleteCardById = (req, res) => {
       message: 'Карточка успешно удалена'
     })
   })
-  .catch(() => {
-    if (!Card[cardId]) {
+  .catch((err) => {
+    if (err.name === 'CastError') {
       res.status(INCORRECT_DATA_ERROR).send({
         message: 'Переданы некорректные данные'
+      });
+      return;
+    } else if (err.name === 'NotFound'){
+      res.status(DOCUMENT_NOT_FOUND_ERROR).send({
+        message: 'Не найдено'
+      });
+      return;
+    }
+    else {
+      res.status(UNKNOWN_ERROR).send({
+        message: 'Неизвестная ошибка', err: err.message
       });
     }
   })
 };
+
 
 module.exports = {
 getCards,
