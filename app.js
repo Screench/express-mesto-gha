@@ -16,9 +16,6 @@ app.use(express.json());
 app.use(cookieParser());
 
 mongoose.connect(DB_URL);
-app.use(router);
-app.use(errors());
-app.use(errorsHandler);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -36,6 +33,10 @@ app.post('/signup', celebrate({
     password: Joi.string().required().min(5),
   }),
 }), createUser);
+
+app.use(router);
+app.use(errors());
+app.use(errorsHandler);
 
 app.listen(PORT, () => {
   console.log(`Прослушивание порта: ${PORT}`);
