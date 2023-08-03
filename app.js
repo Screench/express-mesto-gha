@@ -1,25 +1,41 @@
 const express = require('express');
 const mongoose = require('mongoose');
-// eslint-disable-next-line import/no-extraneous-dependencies
+const cookieParser = ('cookie-parser');
+const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 const helmet = require('helmet');
 const router = require('./routes');
+const errorsHandler = require('./middleware/errorHandler');
+const { createUser, login } = require('./controllers/users');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 
 const app = express();
 app.use(helmet());
 app.use(express.json());
-
-// Авторизация
-app.use((req, res, next) => {
-  req.userId = {
-    _id: '64bebcd29d7618328a28fa38',
-  };
-  next();
-});
+app.use(cookieParser());
 
 mongoose.connect(DB_URL);
 app.use(router);
+app.use(errors());
+app.use(errorsHandler);
+
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(5),
+  }),
+}), login);
+
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
+    avatar: Joi.string().optional(),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(5),
+  }),
+}), createUser);
 
 app.listen(PORT, () => {
   console.log(`Прослушивание порта: ${PORT}`);

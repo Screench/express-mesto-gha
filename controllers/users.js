@@ -1,54 +1,53 @@
-//Контроллер пользователя
 const User = require('../models/user');
+
+const bcrypt = require('bcrypt');
+const jsonWebToken = require('jsonwebtoken');
+
+const ErrorAuth = require('../errors/errorAuth');
+const ErrorConflict = require('../errors/errorConflict.js');
+const ErrorNotFound = require('../errors/errorNotFound.js');
 
 const { INCORRECT_DATA_ERROR, DOCUMENT_NOT_FOUND_ERROR, UNKNOWN_ERROR } = require('../errors/errors');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(err => {
-      return res.status(UNKNOWN_ERROR).send({
-        message: 'Неизвестная ошибка', err: err.message
-      });
-    });
+    .catch((err) => res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message }));
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(() => new Error('No such user'))
+    .orFail(() => new Error('Нет такого пользователя'))
     .then((userData) => res.send(userData))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(INCORRECT_DATA_ERROR).send({
-          message: 'Переданы некорректные данные'
+          message: 'Переданы некорректные данные',
         });
-        return;
-      } else if (err.message === 'No such user') {
+      } else if (err.message === 'Нет такого пользователя') {
         res.status(DOCUMENT_NOT_FOUND_ERROR).send({
-          message: 'Нет такого пользователя'
+          message: 'Нет такого пользователя',
         });
-        return;
       } else {
         res.status(UNKNOWN_ERROR).send({
-          message: 'Неизвестная ошибка', err: err.message
+          message: 'Неизвестная ошибка', err: err.message,
         });
       }
     });
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((userData) => {
-      res.status(201).send(userData)
-    })
+  const { name, about, avatar, email, password } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hashedPassword) => User.create({ name, about, avatar, email, password: hashedPassword }))
+    .then((userData) => res.status(201).send(userData.toJSON()))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
-        return;
-      } else {
-        res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message })
+        next(new ErrorValidation('Переданы некорректные данные'));
+      } else if (err.code === 11000) {
+        next(new ErrorConflict('Введенный email уже есть в системе'));
       }
+      next(err);
     });
 };
 
@@ -57,14 +56,13 @@ const updateProfile = (req, res) => {
   const { _id } = req.userId;
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
     .then((userData) => res.send(userData))
-    .catch(err => {
+    .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
-        return;
       } else {
-        res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message })
+        res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message });
       }
-    })
+    });
 };
 
 const updateAvatar = (req, res) => {
@@ -75,12 +73,44 @@ const updateAvatar = (req, res) => {
     .catch((err) => {
       if (!req.body.avatar) {
         res.status(INCORRECT_DATA_ERROR).send({ message: 'Переданы некорректные данные' });
-        return;
       } else {
-        res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message })
+        res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message });
       }
+    });
+};
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+  User.findOne({ email })
+    .select('+password')
+    .orFail(new ErrorAuth('Нет такого пользователя'))
+    .then((userData) => {
+      bcrypt.compare(password, userData.password)
+        .then((isValidUser) => {
+          if (isValidUser) {
+            const jwt = jsonWebToken.sign({ _id: userData._id }, 'SECRET');
+            res.cookie('jwt', jwt, {
+              maxAge: 360000000,
+              httpOnly: true,
+              sameSite: true,
+            });
+            res.send(userData);
+          } else {
+            throw new ErrorAuth('Неправильный пароль');
+          }
+        })
+        .catch(next);
     })
+    .catch(next);
+};
+
+const getCurrentUser = (req, res, next) => {
+  User.findById(req.userData._id)
+  .orFail(new ErrorNotFound('Нет такого пользователя'))
+  .then((userData) => res.send(userData))
+  .catch((err) => next(err));
 }
+
 
 module.exports = {
   createUser,
@@ -88,4 +118,6 @@ module.exports = {
   getUsers,
   updateProfile,
   updateAvatar,
+  login,
+  getCurrentUser,
 };
