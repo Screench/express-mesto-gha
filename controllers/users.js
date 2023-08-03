@@ -5,6 +5,7 @@ const jsonWebToken = require('jsonwebtoken');
 const ErrorAuth = require('../errors/errorAuth');
 const ErrorConflict = require('../errors/errorConflict');
 const ErrorNotFound = require('../errors/errorNotFound');
+const ErrorValidation = require('../errors/errorValidation');
 
 const { INCORRECT_DATA_ERROR, DOCUMENT_NOT_FOUND_ERROR, UNKNOWN_ERROR } = require('../errors/errors');
 
@@ -35,7 +36,7 @@ const getUserById = (req, res) => {
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
   bcrypt.hash(password, 10)
     .then((hashedPassword) => User.create({ name, about, avatar, email, password: hashedPassword }))
