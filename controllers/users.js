@@ -1,11 +1,10 @@
 const User = require('../models/user');
-
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
 
 const ErrorAuth = require('../errors/errorAuth');
-const ErrorConflict = require('../errors/errorConflict.js');
-const ErrorNotFound = require('../errors/errorNotFound.js');
+const ErrorConflict = require('../errors/errorConflict');
+const ErrorNotFound = require('../errors/errorNotFound');
 
 const { INCORRECT_DATA_ERROR, DOCUMENT_NOT_FOUND_ERROR, UNKNOWN_ERROR } = require('../errors/errors');
 
