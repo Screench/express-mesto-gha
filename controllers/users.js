@@ -8,10 +8,10 @@ const ErrorNotFound = require('../errors/errorNotFound');
 const ErrorValidation = require('../errors/errorValidation');
 const UnknownError = require('../errors/errorUnknown');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => res.status(UNKNOWN_ERROR).send({ message: 'Неизвестная ошибка', err: err.message }));
+    .catch(next);
 };
 
 const getUserById = (req, res, next) => {
@@ -24,7 +24,7 @@ const getUserById = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === 'CastError') {
         next(new ErrorValidation('Переданы некорректные данные'));
       }
       next(err);
@@ -32,9 +32,13 @@ const getUserById = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
   bcrypt.hash(password, 10)
-    .then((hashedPassword) => User.create({ name, about, avatar, email, password: hashedPassword }))
+    .then((hashedPassword) => User.create({
+      name, about, avatar, email, password: hashedPassword,
+    }))
     .then((userData) => res.send(userData.toJSON()))
     .catch((err) => {
       if (err.name === 'ValidationError') {

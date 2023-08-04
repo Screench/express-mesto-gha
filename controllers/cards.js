@@ -30,7 +30,7 @@ const setLike = (req, res, next) => {
       if (!card) {
         throw new ErrorNotFound('Нет такой карточки');
       } else {
-        res.send(card);
+        next(res.send(card));
       }
     })
     .catch((err) => {
@@ -48,7 +48,7 @@ const removeLike = (req, res, next) => {
       if (!card) {
         throw new ErrorNotFound('Нет такой карточки');
       } else {
-        res.send(card);
+        next(res.send(card));
       }
     })
     .catch((err) => {
