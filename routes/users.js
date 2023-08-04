@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { validateUserId, validateProfileUpdate, validateAvatarUpdate } = require('../utils/regex');
 
 const {
   getUsers, getCurrentUser, updateProfile, updateAvatar, getUserById,
@@ -7,9 +8,9 @@ const {
 router.get('/', getUsers);
 router.get('/me', getCurrentUser);
 
-router.get('/:userId', getUserById);
+router.get('/:userId', validateUserId, getUserById);
 
-router.patch('/me/avatar', updateAvatar);
-router.patch('/me', updateProfile);
+router.patch('/me/avatar', validateAvatarUpdate, updateAvatar);
+router.patch('/me', validateProfileUpdate, updateProfile);
 
 module.exports = router;

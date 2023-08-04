@@ -52,7 +52,7 @@ const createUser = (req, res, next) => {
 
 const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
-  const { _id } = req.userId;
+  const { _id } = req.user;
   User.findByIdAndUpdate(_id, { name, about }, { new: true, runValidators: true })
     .then((userData) => res.send(userData))
     .catch((err) => {
@@ -66,7 +66,7 @@ const updateProfile = (req, res, next) => {
 
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  const { _id } = req.userId;
+  const { _id } = req.user;
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then((userData) => res.send(userData))
     .catch((err) => {
@@ -89,7 +89,7 @@ const login = (req, res, next) => {
           if (isValidUser) {
             const jwt = jsonWebToken.sign({ _id: userData._id }, 'SECRET');
             res.cookie('jwt', jwt, {
-              maxAge: 360000000,
+              maxAge: 36000000,
               httpOnly: true,
               sameSite: true,
             });
