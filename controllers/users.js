@@ -1,13 +1,12 @@
-const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
+const User = require('../models/user');
 
 const ErrorAuth = require('../errors/errorAuth');
 const ErrorConflict = require('../errors/errorConflict');
 const ErrorNotFound = require('../errors/errorNotFound');
 const ErrorValidation = require('../errors/errorValidation');
-
-const { INCORRECT_DATA_ERROR, DOCUMENT_NOT_FOUND_ERROR, UNKNOWN_ERROR } = require('../errors/errors');
+const UnknownError = require('../errors/errorUnknown');
 
 const getUsers = (req, res) => {
   User.find({})
