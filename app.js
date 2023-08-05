@@ -17,8 +17,14 @@ app.use(cookieParser());
 mongoose.connect(DB_URL);
 
 app.use(router);
+
 app.use(errors());
 app.use(errorHandler);
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).send({ message: err.message });
+});
 
 app.listen(PORT, () => {
   console.log(`Прослушивание порта: ${PORT}`);
