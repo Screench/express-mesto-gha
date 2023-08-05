@@ -1,10 +1,10 @@
 const { AUTH_ERROR } = require('./errors');
 
-class ErrorAuth extends Error {
+class AuthError extends Error {
   constructor(message) {
     super(message);
     this.statusCode = AUTH_ERROR;
   }
 }
 
-module.exports = ErrorAuth;
+module.exports = AuthError;

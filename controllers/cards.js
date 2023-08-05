@@ -1,8 +1,7 @@
 const Card = require('../models/card');
-
-const ErrorValidation = require('../errors/errorValidation');
-const ErrorNotFound = require('../errors/errorNotFound');
-const ErrorForbidden = require('../errors/errorForbidden');
+const NotFoundError = require('../errors/NotFoundError');
+const ForbiddenError = require('../errors/ForbiddenError');
+const ValidationError = require('../errors/ValidationError');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -17,7 +16,7 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ErrorValidation('Переданы некорректные данные'));
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -28,14 +27,14 @@ const setLike = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
-        throw new ErrorNotFound('Нет такой карточки');
+        throw new NotFoundError('Нет такой карточки');
       } else {
-        next(res.send(card));
+        res.send(card);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ErrorValidation('Переданы некорректные данные'));
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -46,14 +45,14 @@ const removeLike = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
-        throw new ErrorNotFound('Нет такой карточки');
+        throw new NotFoundError('Нет такой карточки');
       } else {
-        next(res.send(card));
+        res.send(card);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ErrorValidation('Переданы некорректные данные'));
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
         next(err);
       }
@@ -62,14 +61,14 @@ const removeLike = (req, res, next) => {
 
 const deleteCardById = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => new ErrorNotFound('Нет такой карточки'))
+    .orFail(() => new NotFoundError('Нет такой карточки'))
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
         card.deleteOne(card)
           .then((cards) => res.send(cards))
           .catch(next);
       } else {
-        throw new ErrorForbidden('Запрещено');
+        throw new ForbiddenError('Запрещено');
       }
     })
     .catch(next);

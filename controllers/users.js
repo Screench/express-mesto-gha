@@ -2,11 +2,11 @@ const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
 
-const ErrorAuth = require('../errors/errorAuth');
-const ErrorConflict = require('../errors/errorConflict');
-const ErrorNotFound = require('../errors/errorNotFound');
-const ErrorValidation = require('../errors/errorValidation');
-const UnknownError = require('../errors/errorUnknown');
+const AuthError = require('../errors/AuthError');
+const ConflictError = require('../errors/ConflictError');
+const NotFoundError = require('../errors/NotFoundError');
+const ValidationError = require('../errors/ValidationError');
+const UnknownError = require('../errors/UnknownError');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -18,14 +18,14 @@ const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((userData) => {
       if (!userData) {
-        throw new ErrorNotFound('Нет такого пользователя');
+        throw new NotFoundError('Нет такого пользователя');
       } else {
-        next(res.send(userData));
+        res.send(userData);
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ErrorValidation('Переданы некорректные данные'));
+        next(new ValidationError('Переданы некорректные данные'));
       }
       next(err);
     });
@@ -42,9 +42,9 @@ const createUser = (req, res, next) => {
     .then((userData) => res.status(201).send(userData.toJSON()))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ErrorValidation('Переданы некорректные данные'));
+        next(new ValidationError('Переданы некорректные данные'));
       } else if (err.code === 11000) {
-        next(new ErrorConflict('Введенный email уже есть в системе'));
+        next(new ConflictError('Введенный email уже есть в системе'));
       }
       next(err);
     });
@@ -57,7 +57,7 @@ const updateProfile = (req, res, next) => {
     .then((userData) => res.send(userData))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ErrorValidation('Переданы некорректные данные'));
+        next(new ValidationError('Переданы некорректные данные'));
       } else {
         next(new UnknownError('Неизвестная ошибка'));
       }
@@ -71,7 +71,7 @@ const updateAvatar = (req, res, next) => {
     .then((userData) => res.send(userData))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ErrorValidation('Переданые некорректные данные'));
+        next(new ValidationError('Переданые некорректные данные'));
       } else {
         next(new UnknownError('Неизвестная ошибка'));
       }
@@ -82,7 +82,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
     .select('+password')
-    .orFail(new ErrorAuth('Нет такого пользователя'))
+    .orFail(new AuthError('Нет такого пользователя'))
     .then((userData) => {
       bcrypt.compare(password, userData.password)
         .then((isValidUser) => {
@@ -95,7 +95,7 @@ const login = (req, res, next) => {
             });
             res.send(userData);
           } else {
-            throw new ErrorAuth('Неправильный пароль');
+            throw new AuthError('Неправильный пароль');
           }
         })
         .catch(next);
@@ -105,7 +105,7 @@ const login = (req, res, next) => {
 
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(new ErrorNotFound('Нет такого пользователя'))
+    .orFail(new NotFoundError('Нет такого пользователя'))
     .then((user) => res.send(user))
     .catch((err) => next(err));
 };

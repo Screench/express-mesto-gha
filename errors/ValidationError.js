@@ -1,10 +1,10 @@
 const { INCORRECT_DATA_ERROR } = require('./errors');
 
-class ErrorValidation extends Error {
+class ValidationError extends Error {
   constructor(message) {
     super(message);
     this.statusCode = INCORRECT_DATA_ERROR;
   }
 }
 
-module.exports = ErrorValidation;
+module.exports = ValidationError;

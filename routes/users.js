@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { validateUserId, validateProfileUpdate, validateAvatarUpdate } = require('../middleware/regex');
+const { middlewareUserId, middlewareProfileUpdate, middlewareAvatarUpdate } = require('../middleware/regex');
 
 const {
   getUsers, getCurrentUser, updateProfile, updateAvatar, getUserById,
@@ -8,9 +8,9 @@ const {
 router.get('/', getUsers);
 router.get('/me', getCurrentUser);
 
-router.get('/:userId', validateUserId, getUserById);
+router.get('/:userId', middlewareUserId, getUserById);
 
-router.patch('/me/avatar', validateAvatarUpdate, updateAvatar);
-router.patch('/me', validateProfileUpdate, updateProfile);
+router.patch('/me/avatar', middlewareAvatarUpdate, updateAvatar);
+router.patch('/me', middlewareProfileUpdate, updateProfile);
 
 module.exports = router;

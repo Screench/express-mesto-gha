@@ -1,10 +1,10 @@
 const { DOCUMENT_NOT_FOUND_ERROR } = require('./errors');
 
-class ErrorNotFound extends Error {
+class NotFoundError extends Error {
   constructor(message) {
     super(message);
     this.statusCode = DOCUMENT_NOT_FOUND_ERROR;
   }
 }
 
-module.exports = ErrorNotFound;
+module.exports = NotFoundError;
