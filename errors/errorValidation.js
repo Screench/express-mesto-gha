@@ -1,4 +1,4 @@
-const { INCORRECT_DATA_ERROR } = require('./errors')
+const { INCORRECT_DATA_ERROR } = require('./errors');
 
 class ErrorValidation extends Error {
   constructor(message) {

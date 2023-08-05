@@ -1,4 +1,4 @@
-const { UNKNOWN_ERROR } = require('./errors')
+const { UNKNOWN_ERROR } = require('./errors');
 
 class UnknownError extends Error {
   constructor(message) {
