@@ -1,3 +1,4 @@
+/* eslint-disable no-else-return */
 const Card = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
@@ -16,9 +17,9 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Переданы некорректные данные'));
+        return next(new ValidationError('Переданы некорректные данные'));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -34,9 +35,9 @@ const setLike = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные'));
+        return next(new ValidationError('Переданы некорректные данные'));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
@@ -52,26 +53,34 @@ const removeLike = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные'));
+        return next(new ValidationError('Переданы некорректные данные'));
       } else {
-        next(err);
+        return next(err);
       }
     });
 };
 
 const deleteCardById = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => new NotFoundError('Нет такой карточки'))
+  Card.findById(req.params.cardId)
     .then((card) => {
-      if (card.owner.toString() === req.user._id) {
-        card.deleteOne(card)
-          .then((cards) => res.send(cards))
-          .catch(next);
-      } else {
+      if (!card) {
+        throw new NotFoundError('Нет такой карточки');
+      } else if (String(card.owner) !== String(req.user._id)) {
         throw new ForbiddenError('Запрещено');
+      } else {
+        return Card.findByIdAndRemove(card._id);
       }
     })
-    .catch(next);
+    .then((deletedCard) => {
+      res.send(deletedCard);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new ValidationError('Переданы некорректные данные'));
+      } else {
+        return next(err);
+      }
+    });
 };
 
 module.exports = {

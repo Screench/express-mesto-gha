@@ -1,3 +1,4 @@
+/* eslint-disable no-else-return */
 const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
@@ -25,9 +26,9 @@ const getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные'));
+        return next(new ValidationError('Переданы некорректные данные'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -42,11 +43,11 @@ const createUser = (req, res, next) => {
     .then((userData) => res.status(201).send(userData.toJSON()))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Переданы некорректные данные'));
+        return next(new ValidationError('Переданы некорректные данные'));
       } else if (err.code === 11000) {
-        next(new ConflictError('Введенный email уже есть в системе'));
+        return next(new ConflictError('Введенный email уже есть в системе'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -57,9 +58,9 @@ const updateProfile = (req, res, next) => {
     .then((userData) => res.send(userData))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Переданы некорректные данные'));
+        return next(new ValidationError('Переданы некорректные данные'));
       } else {
-        next(new UnknownError('Неизвестная ошибка'));
+        return next(new UnknownError('Неизвестная ошибка'));
       }
     });
 };
@@ -71,9 +72,9 @@ const updateAvatar = (req, res, next) => {
     .then((userData) => res.send(userData))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new ValidationError('Переданые некорректные данные'));
+        return next(new ValidationError('Переданы некорректные данные'));
       } else {
-        next(new UnknownError('Неизвестная ошибка'));
+        return next(new UnknownError('Неизвестная ошибка'));
       }
     });
 };
