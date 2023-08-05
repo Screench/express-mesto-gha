@@ -87,7 +87,7 @@ const login = (req, res, next) => {
       bcrypt.compare(password, userData.password)
         .then((isValidUser) => {
           if (isValidUser) {
-            const jwt = jsonWebToken.sign({ _id: userData._id }, 'SECRET');
+            const jwt = jsonWebToken.sign({ _id: userData._id }, 'SECRET_KEY');
             res.cookie('jwt', jwt, {
               maxAge: 36000000,
               httpOnly: true,
