@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { validateUserId, validateProfileUpdate, validateAvatarUpdate } = require('../utils/regex');
+const { validateUserId, validateProfileUpdate, validateAvatarUpdate } = require('../middleware/regex');
 
 const {
   getUsers, getCurrentUser, updateProfile, updateAvatar, getUserById,

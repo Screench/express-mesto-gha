@@ -39,7 +39,7 @@ const createUser = (req, res, next) => {
     .then((hashedPassword) => User.create({
       name, about, avatar, email, password: hashedPassword,
     }))
-    .then((userData) => res.send(userData.toJSON()))
+    .then((userData) => res.status(201).send(userData.toJSON()))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ErrorValidation('Переданы некорректные данные'));

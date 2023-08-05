@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const {
   validateCreateCard, validateDeleteCardById, validateRemoveLike, validateSetLike,
-} = require('../utils/regex');
+} = require('../middleware/regex');
 
 const {
   getCards, createCard, setLike, removeLike, deleteCardById,
