@@ -18,11 +18,6 @@ mongoose.connect(DB_URL);
 
 app.use(router);
 
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  res.status(statusCode).send({ message: err.message });
-});
-
 app.use(errors());
 app.use(errorHandler);
 

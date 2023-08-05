@@ -1,16 +1,21 @@
 const router = require('express').Router();
-const cardRoutes = require('./cards');
 const userRoutes = require('./users');
+const cardRoutes = require('./cards');
 const { createUser, login } = require('../controllers/users');
 const auth = require('../middleware/auth');
+const ErrorNotFound = require('../errors/errorNotFound');
 const { validateCreateUser, validateLogin } = require('../middleware/regex');
 
-router.post('/signin', validateLogin, login);
 router.post('/signup', validateCreateUser, createUser);
+router.post('/signin', validateLogin, login);
 
 router.use(auth);
 
-router.use('/cards', cardRoutes);
 router.use('/users', userRoutes);
+router.use('/cards', cardRoutes);
+
+router.use('*', (req, res, next) => {
+  next(new ErrorNotFound('Нет такой страницы'));
+});
 
 module.exports = router;
