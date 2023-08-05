@@ -104,9 +104,9 @@ const login = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  User.findById(req.userData._id)
+  User.findById(req.user._id)
     .orFail(new ErrorNotFound('Нет такого пользователя'))
-    .then((userData) => res.send(userData))
+    .then((user) => res.send(user))
     .catch((err) => next(err));
 };
 
